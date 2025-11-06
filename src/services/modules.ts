@@ -1,4 +1,7 @@
 import { Global, Module } from "@nestjs/common";
+import { CreatePasswordService } from "./passwords/create-password";
+import { FindPasswordService } from "./passwords/find-password";
+import { ListPasswordsService } from "./passwords/list-passwords";
 import { PrismaService } from "./prisma/service";
 import { FindUserByEmail } from "./users/find-user-by-email";
 import { FindUserById } from "./users/find-user-by-id";
@@ -10,6 +13,12 @@ import { FindUserById } from "./users/find-user-by-id";
     FindUserById,
     FindUserByEmail,
 
+    // Passwords
+    CreatePasswordService,
+    FindPasswordService,
+    ListPasswordsService,
+
+    // Prisma
     PrismaService,
   ],
   exports: [
@@ -17,6 +26,12 @@ import { FindUserById } from "./users/find-user-by-id";
     FindUserById,
     FindUserByEmail,
 
+    // Passwords
+    CreatePasswordService,
+    FindPasswordService,
+    ListPasswordsService,
+
+    // Prisma
     PrismaService,
   ],
 })

@@ -1,9 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { createHash } from "crypto";
+import cuid from "cuid";
 import { config } from "dotenv";
 import { env } from "../src/env.config";
-import { encrypt } from "../src/utils/crypt.util";
+import { deriveKey, encrypt } from "../src/utils/crypt.util";
 
 config();
 
@@ -11,13 +12,17 @@ const prisma = new PrismaClient();
 
 async function seed() {
   await prisma.$transaction(async (tx) => {
-    const { content, tag } = encrypt(env.ADMIN_PASSWORD);
+    const salt = cuid();
+    const key = await deriveKey(env.CRYPT_KEY, salt);
+
+    const { data, iv } = await encrypt(env.ADMIN_EMAIL, key);
+
     await tx.user.create({
       data: {
         name: env.ADMIN_NAME,
         email: createHash("sha256").update(env.ADMIN_EMAIL).digest("hex"),
-        emailHashed: content,
-        emailTag: tag,
+        emailEnc: data,
+        emailIv: iv,
         password: bcrypt.hashSync(
           env.ADMIN_PASSWORD,
           env.BCRYPT_HASH_SALT_ROUNDS,

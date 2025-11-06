@@ -16,7 +16,6 @@ const envSchema = z.object({
   ADMIN_PASSWORD: z.string(),
 
   CRYPT_KEY: z.string(),
-  CRYPT_IV: z.string(),
   CRYPT_ALGORITHM: z.string(),
 
   BCRYPT_HASH_SALT_ROUNDS: z.string().transform((val) => Number(val)),

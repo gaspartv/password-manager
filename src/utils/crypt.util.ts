@@ -1,33 +1,52 @@
 import crypto from "crypto";
-import { env } from "../env.config";
 
-export function encrypt(text: string) {
-  const cipher = crypto.createCipheriv(
-    "aes-256-gcm",
-    env.CRYPT_KEY,
-    env.CRYPT_IV,
-  );
+export async function deriveKey(
+  masterPassword: string,
+  salt: string,
+): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    crypto.scrypt(
+      masterPassword,
+      salt,
+      32,
+      { N: 16384, r: 8, p: 1 },
+      (err, key) => {
+        if (err) reject(err);
+        else resolve(key as Buffer);
+      },
+    );
+  });
+}
+
+export async function encrypt(plainText: string, key: Buffer) {
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv("aes-256-gcm", key, iv);
   const encrypted = Buffer.concat([
-    cipher.update(text, "utf8"),
+    cipher.update(plainText, "utf8"),
     cipher.final(),
   ]);
+  console.log({
+    iv,
+    key: key.toString("hex"),
+  });
   const tag = cipher.getAuthTag();
   return {
-    content: encrypted.toString("hex"),
-    tag: tag.toString("hex"),
+    data: Buffer.concat([encrypted, tag]).toString("base64"),
+    iv: iv.toString("base64"),
   };
 }
 
-export function decrypt(encrypted: { content: string; tag: string }) {
-  const decipher = crypto.createDecipheriv(
-    "aes-256-gcm",
-    env.CRYPT_KEY,
-    Buffer.from(env.CRYPT_IV, "hex"),
-  );
-  decipher.setAuthTag(Buffer.from(encrypted.tag, "hex"));
-  const decrypted = Buffer.concat([
-    decipher.update(Buffer.from(encrypted.content, "hex")),
-    decipher.final(),
-  ]);
+export async function decrypt(encData: string, ivBase64: string, key: Buffer) {
+  const data = Buffer.from(encData, "base64");
+  const iv = Buffer.from(ivBase64, "base64");
+  console.log({ iv, key: key.toString("hex") });
+  const tag = data.slice(data.length - 16);
+  const text = data.slice(0, data.length - 16);
+
+  const decipher = crypto.createDecipheriv("aes-256-gcm", key, iv);
+  decipher.setAuthTag(tag);
+
+  const decrypted = Buffer.concat([decipher.update(text), decipher.final()]);
+
   return decrypted.toString("utf8");
 }

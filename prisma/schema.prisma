@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -8,15 +8,30 @@ datasource db {
 }
 
 model User {
-  id          String @id @default(cuid())
-  code        Int    @unique @default(autoincrement())
-  name        String
-  email       String @unique
-  emailHashed String
-  emailTag    String
-  password    String
-  
-  @@index([code])
+  id       String @id @default(cuid())
+  code     String @unique @default(cuid())
+  name     String
+  email    String @unique
+  emailEnc String @map("email_enc")
+  emailIv  String @map("email_iv")
+  password String
+
+  passwords Password[]
+
   @@index([email])
   @@map("users")
+}
+
+model Password {
+  id          String  @id @default(cuid())
+  name        String
+  passwordEnc String  @map("password_enc")
+  passwordIv  String  @map("password_iv")
+  url         String?
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @map("user_id")
+
+  @@index([userId])
+  @@map("passwords")
 }
