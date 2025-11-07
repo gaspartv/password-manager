@@ -8,20 +8,18 @@ export class CreatePasswordService {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(dto: CreatePasswordDto & { userId: string; code: string }) {
-    console.log({
-      code: dto.code,
-      userId: dto.userId,
-    });
-
     const key = await deriveKey(dto.code, dto.userId);
 
-    const { data, iv } = await encrypt(dto.password, key);
+    const encryptedPassword = await encrypt(dto.password, key);
+    const encryptedLogin = await encrypt(dto.login, key);
 
     await this.prisma.password.create({
       data: {
         name: dto.name,
-        passwordEnc: data,
-        passwordIv: iv,
+        loginEnc: encryptedLogin.data,
+        loginIv: encryptedLogin.iv,
+        passwordEnc: encryptedPassword.data,
+        passwordIv: encryptedPassword.iv,
         url: dto.url,
         userId: dto.userId,
       },

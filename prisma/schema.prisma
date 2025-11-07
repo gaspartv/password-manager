@@ -25,6 +25,8 @@ model User {
 model Password {
   id          String  @id @default(cuid())
   name        String
+  loginEnc    String  @map("login_enc")
+  loginIv     String  @map("login_iv")
   passwordEnc String  @map("password_enc")
   passwordIv  String  @map("password_iv")
   url         String?

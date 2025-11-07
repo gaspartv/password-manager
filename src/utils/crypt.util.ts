@@ -25,10 +25,6 @@ export async function encrypt(plainText: string, key: Buffer) {
     cipher.update(plainText, "utf8"),
     cipher.final(),
   ]);
-  console.log({
-    iv,
-    key: key.toString("hex"),
-  });
   const tag = cipher.getAuthTag();
   return {
     data: Buffer.concat([encrypted, tag]).toString("base64"),
@@ -39,7 +35,6 @@ export async function encrypt(plainText: string, key: Buffer) {
 export async function decrypt(encData: string, ivBase64: string, key: Buffer) {
   const data = Buffer.from(encData, "base64");
   const iv = Buffer.from(ivBase64, "base64");
-  console.log({ iv, key: key.toString("hex") });
   const tag = data.slice(data.length - 16);
   const text = data.slice(0, data.length - 16);
 

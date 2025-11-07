@@ -22,6 +22,11 @@
     "prisma:seed": "prisma db seed"
   },
   "dependencies": {
+    "@ark-ui/react": "^5.27.1",
+    "@chakra-ui/react": "^3.29.0",
+    "@emotion/react": "^11.14.0",
+    "@fastify/static": "^8.3.0",
+    "@fastify/view": "^11.1.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
     "@nestjs/jwt": "^11.0.1",
@@ -35,8 +40,12 @@
     "crypto-js": "^4.2.0",
     "cuid": "^3.0.0",
     "dotenv": "^17.2.3",
+    "handlebars": "^4.7.8",
     "i": "^0.3.7",
     "install": "^0.13.0",
+    "point-of-view": "^6.3.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "zod": "^4.1.12"

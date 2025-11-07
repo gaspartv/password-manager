@@ -4,6 +4,7 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from "@nestjs/platform-fastify";
+import { join } from "path";
 import { AppModule } from "./app.module";
 import { env } from "./env.config";
 
@@ -12,6 +13,20 @@ async function bootstrap() {
     AppModule,
     new FastifyAdapter(),
   );
+
+  // Configurar arquivos estáticos
+  app.useStaticAssets({
+    root: join(__dirname, "..", "public"),
+    prefix: "/public/",
+  });
+
+  // Configurar view engine
+  app.setViewEngine({
+    engine: {
+      handlebars: require("handlebars"),
+    },
+    templates: join(__dirname, "..", "views"),
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({

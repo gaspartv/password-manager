@@ -37,6 +37,11 @@ export class AuthGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: env.JWT_SECRET,
       });
+      // verificar se o token expirou
+      const currentTime = Math.floor(Date.now() / 1000);
+      if (currentTime > payload.exp) {
+        throw new UnauthorizedException("Token expirado.");
+      }
       const user = await this.prisma.user.findUnique({
         where: { id: payload.sub },
       });

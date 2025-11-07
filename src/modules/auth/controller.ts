@@ -1,4 +1,11 @@
-import { Body, Controller, Post, UnauthorizedException } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Render,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import bcrypt from "bcrypt";
 import { createHash } from "crypto";
@@ -6,7 +13,7 @@ import { Public } from "src/decorators/is-public";
 import { FindUserByEmail } from "src/services/users/find-user-by-email";
 import { SignInDto } from "./dtos/sign-in.dto";
 
-@Controller("auth")
+@Controller()
 export class AuthController {
   constructor(
     private readonly jwtService: JwtService,
@@ -15,7 +22,14 @@ export class AuthController {
   ) {}
 
   @Public()
-  @Post("sign-in")
+  @Get("/")
+  @Render("login.hbs")
+  loginPage() {
+    return { title: "Login - Password Manager" };
+  }
+
+  @Public()
+  @Post("auth/sign-in")
   async signIn(@Body() body: SignInDto) {
     const email = createHash("sha256").update(body.email).digest("hex");
 
