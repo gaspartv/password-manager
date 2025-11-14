@@ -3,10 +3,10 @@ services:
     container_name: password-manager-db
     image: bitnami/postgresql:latest
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
-      POSTGRES_USER: docker_user
-      POSTGRES_PASSWORD: docker_password
+      POSTGRES_USER: user_manager_prod
+      POSTGRES_PASSWORD: password_manager_prod
       POSTGRES_DB: password_manager_db
     volumes:
       - pgdata:/bitnami/postgresql

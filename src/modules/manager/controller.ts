@@ -34,7 +34,7 @@ export class ManagerController {
     return this.listPasswordsService.execute(request.user.id, search);
   }
 
-  @Post()
+  @Post("passwords")
   create(@Body() body: CreatePasswordDto, @Req() request: any) {
     return this.createPasswordService.execute({
       ...body,
