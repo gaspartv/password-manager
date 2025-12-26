@@ -7,6 +7,8 @@ import { ConfirmUserService } from "./users/confirm-user";
 import { CreateUserService } from "./users/create-user";
 import { FindUserByEmail } from "./users/find-user-by-email";
 import { FindUserById } from "./users/find-user-by-id";
+import { ForgotPasswordService } from "./users/forgot-password";
+import { ResetPasswordService } from "./users/reset-password";
 
 @Global()
 @Module({
@@ -16,6 +18,8 @@ import { FindUserById } from "./users/find-user-by-id";
     CreateUserService,
     FindUserById,
     FindUserByEmail,
+    ForgotPasswordService,
+    ResetPasswordService,
 
     // Passwords
     CreatePasswordService,
@@ -31,6 +35,8 @@ import { FindUserById } from "./users/find-user-by-id";
     CreateUserService,
     FindUserById,
     FindUserByEmail,
+    ForgotPasswordService,
+    ResetPasswordService,
 
     // Passwords
     CreatePasswordService,

@@ -1,10 +1,8 @@
-// Componente de Registro de Usuário
-class RegisterForm extends React.Component {
+// Componente de Redefinir Senha
+class ResetPasswordForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: "",
-      email: "",
       password: "",
       confirmPassword: "",
       showPassword: false,
@@ -13,33 +11,38 @@ class RegisterForm extends React.Component {
       error: null,
       success: null,
       fieldErrors: {},
+      token: null,
+      invalidToken: false,
     };
   }
 
+  componentDidMount() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token");
+
+    if (!token) {
+      this.setState({
+        invalidToken: true,
+        error: "Token de recuperação não encontrado na URL.",
+      });
+      return;
+    }
+
+    this.setState({ token });
+  }
+
   validateForm = () => {
-    const { name, email, password, confirmPassword } = this.state;
+    const { password, confirmPassword } = this.state;
     const errors = {};
 
-    if (!name.trim()) {
-      errors.name = "O nome é obrigatório.";
-    } else if (name.trim().length < 3) {
-      errors.name = "O nome deve ter pelo menos 3 caracteres.";
-    }
-
-    if (!email.trim()) {
-      errors.email = "O e-mail é obrigatório.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      errors.email = "Formato de e-mail inválido.";
-    }
-
     if (!password) {
-      errors.password = "A senha é obrigatória.";
+      errors.password = "A nova senha é obrigatória.";
     } else if (password.length < 6) {
       errors.password = "A senha deve ter pelo menos 6 caracteres.";
     }
 
     if (!confirmPassword) {
-      errors.confirmPassword = "Confirme sua senha.";
+      errors.confirmPassword = "Confirme sua nova senha.";
     } else if (password !== confirmPassword) {
       errors.confirmPassword = "As senhas não coincidem.";
     }
@@ -64,14 +67,13 @@ class RegisterForm extends React.Component {
     });
 
     try {
-      const response = await fetch("/user/create", {
+      const response = await fetch("/user/reset-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: this.state.name.trim(),
-          email: this.state.email.trim(),
+          token: this.state.token,
           password: this.state.password,
         }),
       });
@@ -79,22 +81,16 @@ class RegisterForm extends React.Component {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Erro ao criar conta");
+        throw new Error(data.message || "Erro ao redefinir senha");
       }
 
       this.setState({
-        success:
-          data.message ||
-          "Conta criada com sucesso! Verifique seu e-mail para confirmar o cadastro.",
+        success: data.message || "Senha redefinida com sucesso!",
         isLoading: false,
-        name: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
       });
     } catch (error) {
       this.setState({
-        error: error.message || "Erro ao criar conta. Tente novamente.",
+        error: error.message || "Erro ao redefinir senha. Tente novamente.",
         isLoading: false,
       });
     }
@@ -148,10 +144,70 @@ class RegisterForm extends React.Component {
     );
   }
 
+  renderInvalidToken() {
+    return React.createElement(
+      "div",
+      { className: "container" },
+      React.createElement(
+        "div",
+        { className: "card" },
+        React.createElement("div", { className: "status-icon error" }, "⚠"),
+        React.createElement("h1", { className: "card-title" }, "Link Inválido"),
+        React.createElement(
+          "p",
+          { className: "card-subtitle" },
+          this.state.error,
+        ),
+        React.createElement(
+          "a",
+          {
+            href: "/user/forgot-password",
+            className: "btn btn-primary",
+            style: { textDecoration: "none" },
+          },
+          "Solicitar novo link",
+        ),
+      ),
+    );
+  }
+
+  renderSuccess() {
+    return React.createElement(
+      "div",
+      { className: "container" },
+      React.createElement(
+        "div",
+        { className: "card" },
+        React.createElement(
+          "div",
+          { className: "card-header" },
+          React.createElement("div", { className: "status-icon success" }, "✓"),
+          React.createElement(
+            "h1",
+            { className: "card-title" },
+            "Senha Redefinida!",
+          ),
+          React.createElement(
+            "p",
+            { className: "card-subtitle" },
+            this.state.success,
+          ),
+        ),
+        React.createElement(
+          "a",
+          {
+            href: "/",
+            className: "btn btn-primary",
+            style: { textDecoration: "none" },
+          },
+          "Ir para Login",
+        ),
+      ),
+    );
+  }
+
   render() {
     const {
-      name,
-      email,
       password,
       confirmPassword,
       showPassword,
@@ -160,7 +216,16 @@ class RegisterForm extends React.Component {
       error,
       success,
       fieldErrors,
+      invalidToken,
     } = this.state;
+
+    if (invalidToken) {
+      return this.renderInvalidToken();
+    }
+
+    if (success) {
+      return this.renderSuccess();
+    }
 
     return React.createElement(
       "div",
@@ -172,93 +237,36 @@ class RegisterForm extends React.Component {
         React.createElement(
           "div",
           { className: "card-header" },
+          React.createElement("div", { className: "card-icon" }, "🔐"),
           React.createElement(
             "h1",
             { className: "card-title" },
-            "📝 Criar Conta",
+            "Redefinir Senha",
           ),
           React.createElement(
             "p",
             { className: "card-subtitle" },
-            "Preencha os dados abaixo para se cadastrar",
+            "Digite sua nova senha abaixo.",
           ),
         ),
 
         // Alertas
         error &&
           React.createElement("div", { className: "alert alert-error" }, error),
-        success &&
-          React.createElement(
-            "div",
-            { className: "alert alert-success" },
-            success,
-          ),
 
         // Formulário
         React.createElement(
           "form",
           { onSubmit: this.handleSubmit },
 
-          // Nome
-          React.createElement(
-            "div",
-            { className: "form-group" },
-            React.createElement(
-              "label",
-              { className: "form-label", htmlFor: "name" },
-              "Nome",
-            ),
-            React.createElement("input", {
-              id: "name",
-              type: "text",
-              className: `form-input ${fieldErrors.name ? "error" : ""}`,
-              placeholder: "Seu nome completo",
-              value: name,
-              onChange: this.handleInputChange("name"),
-              disabled: isLoading,
-            }),
-            fieldErrors.name &&
-              React.createElement(
-                "p",
-                { className: "form-error" },
-                fieldErrors.name,
-              ),
-          ),
-
-          // Email
-          React.createElement(
-            "div",
-            { className: "form-group" },
-            React.createElement(
-              "label",
-              { className: "form-label", htmlFor: "email" },
-              "E-mail",
-            ),
-            React.createElement("input", {
-              id: "email",
-              type: "email",
-              className: `form-input ${fieldErrors.email ? "error" : ""}`,
-              placeholder: "seu@email.com",
-              value: email,
-              onChange: this.handleInputChange("email"),
-              disabled: isLoading,
-            }),
-            fieldErrors.email &&
-              React.createElement(
-                "p",
-                { className: "form-error" },
-                fieldErrors.email,
-              ),
-          ),
-
-          // Senha
+          // Nova Senha
           React.createElement(
             "div",
             { className: "form-group" },
             React.createElement(
               "label",
               { className: "form-label", htmlFor: "password" },
-              "Senha",
+              "Nova Senha",
             ),
             React.createElement(
               "div",
@@ -294,14 +302,14 @@ class RegisterForm extends React.Component {
               ),
           ),
 
-          // Confirmar Senha
+          // Confirmar Nova Senha
           React.createElement(
             "div",
             { className: "form-group" },
             React.createElement(
               "label",
               { className: "form-label", htmlFor: "confirmPassword" },
-              "Confirmar Senha",
+              "Confirmar Nova Senha",
             ),
             React.createElement(
               "div",
@@ -354,10 +362,10 @@ class RegisterForm extends React.Component {
                   React.createElement(
                     "span",
                     { key: "text" },
-                    "Criando conta...",
+                    "Redefinindo...",
                   ),
                 ]
-              : "Criar Conta",
+              : "Redefinir Senha",
           ),
         ),
 
@@ -365,7 +373,7 @@ class RegisterForm extends React.Component {
         React.createElement(
           "div",
           { className: "form-footer" },
-          "Já tem uma conta? ",
+          "Lembrou a senha? ",
           React.createElement(
             "a",
             { href: "/", className: "link" },
@@ -379,4 +387,4 @@ class RegisterForm extends React.Component {
 
 // Renderizar o componente
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(React.createElement(RegisterForm));
+root.render(React.createElement(ResetPasswordForm));

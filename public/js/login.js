@@ -222,6 +222,17 @@ class LoginForm extends React.Component {
                 ]
               : "Acessar",
           ),
+
+          // Link esqueci senha
+          React.createElement(
+            "div",
+            { className: "form-footer", style: { marginTop: "1rem" } },
+            React.createElement(
+              "a",
+              { href: "/user/forgot-password", className: "link" },
+              "Esqueci minha senha",
+            ),
+          ),
         ),
 
         // Footer - Link para registro
