@@ -223,6 +223,18 @@ class LoginForm extends React.Component {
               : "Acessar",
           ),
         ),
+
+        // Footer - Link para registro
+        React.createElement(
+          "div",
+          { className: "form-footer" },
+          "Não tem uma conta? ",
+          React.createElement(
+            "a",
+            { href: "/user/register", className: "link" },
+            "Criar conta",
+          ),
+        ),
       ),
     );
   }

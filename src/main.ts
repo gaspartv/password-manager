@@ -7,6 +7,8 @@ import {
 import { join } from "path";
 import { AppModule } from "./app.module";
 import { env } from "./env.config";
+import { LoggingInterceptor } from "./interceptors/logs.interceptor";
+import { PrismaService } from "./services/prisma/service";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -36,6 +38,8 @@ async function bootstrap() {
       transformOptions: { groups: ["transform"] },
     }),
   );
+
+  app.useGlobalInterceptors(new LoggingInterceptor(app.get(PrismaService)));
 
   await app.listen(env.PORT, () => {
     if (env.NODE_ENV === "development") {

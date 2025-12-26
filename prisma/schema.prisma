@@ -7,16 +7,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserTokenType {
+  NEW_USER
+  PASSWORD_RESET
+}
+
 model User {
-  id       String @id @default(cuid())
-  code     String @unique @default(cuid())
-  name     String
-  email    String @unique
-  emailEnc String @map("email_enc")
-  emailIv  String @map("email_iv")
-  password String
+  id              String    @id @default(cuid())
+  code            String    @unique @default(cuid())
+  name            String
+  email           String    @unique
+  emailVerifiedAt DateTime? @map("email_verified_at")
+  emailEnc        String    @map("email_enc")
+  emailIv         String    @map("email_iv")
+  password        String
 
   passwords Password[]
+  tokens    UserToken[]
 
   @@index([email])
   @@map("users")
@@ -36,4 +43,44 @@ model Password {
 
   @@index([userId])
   @@map("passwords")
+}
+
+model UserToken {
+  id        String        @id @default(cuid())
+  token     String        @unique
+  createdAt DateTime      @default(now()) @map("created_at")
+  expiresAt DateTime      @map("expires_at")
+  revoked   Boolean       @default(false)
+  type      UserTokenType
+  data      String
+
+  User   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @map("user_id")
+
+  @@index([token])
+  @@map("user_tokens")
+}
+
+model Log {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  method     String @db.VarChar(10)
+  url        String @db.Text
+  statusCode Int    @map("status_code")
+  durationMs Int    @map("duration_ms")
+
+  ip        String? @db.VarChar(45)
+  userAgent String? @map("user_agent") @db.Text
+  userId    String? @map("user_id")
+
+  request  Json
+  response Json?
+
+  error String? @db.Text
+
+  @@index([createdAt])
+  @@index([statusCode])
+  @@index([userId])
+  @@map("logs")
 }

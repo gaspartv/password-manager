@@ -5,10 +5,18 @@ import { AuthGuard } from "./app.guard";
 import { AppService } from "./app.service";
 import { AuthModule } from "./modules/auth/module";
 import { ManagerModule } from "./modules/manager/module";
+import { UserModule } from "./modules/user/module";
+import { NodemailerModule } from "./providers/nodemailer/nodemailer.module";
 import { ServicesModule } from "./services/modules";
 
 @Module({
-  imports: [AuthModule, ManagerModule, ServicesModule],
+  imports: [
+    AuthModule,
+    ManagerModule,
+    ServicesModule,
+    UserModule,
+    NodemailerModule,
+  ],
   controllers: [AppController],
   providers: [
     AppService,

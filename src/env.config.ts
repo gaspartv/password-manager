@@ -3,6 +3,9 @@ import "dotenv/config";
 import z from "zod";
 
 const envSchema = z.object({
+  API_NAME: z.string(),
+  FRONT_URL: z.url(),
+
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
@@ -22,6 +25,19 @@ const envSchema = z.object({
 
   JWT_SECRET: z.string(),
   JWT_EXPIRATION_TIME: z.coerce.number().min(0).max(86400000),
+
+  SMTP_HOST: z.string().min(1),
+  SMTP_PORT: z.coerce.number(),
+  SMTP_SECURE: z.coerce.boolean().default(false),
+  SMTP_USER: z.email(),
+  SMTP_PASS: z.string().min(1),
+  MAIL_FROM_NAME: z.string().optional(),
+  MAIL_FROM_ADDRESS: z.email().optional(),
+  SMTP_VERIFY_ON_BOOT: z.coerce.boolean().default(true),
+  SMTP_DEBUG: z.coerce.boolean().default(false),
+  SMTP_AUTH_METHOD: z.enum(["LOGIN", "PLAIN", "CRAM-MD5"]).optional(),
+  SMTP_TLS_REJECT_UNAUTHORIZED: z.coerce.boolean().default(true),
+  SMTP_REQUIRE_TLS: z.coerce.boolean().default(false),
 });
 
 const _env = envSchema.safeParse(process.env);
